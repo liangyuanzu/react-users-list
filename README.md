@@ -1,2 +1,15 @@
-# react-users-list
-基于 React 的 CRUD(增删改查) 应用
+# umi project
+
+## Getting Started
+
+Install dependencies,
+
+```bash
+$ yarn
+```
+
+Start the dev server,
+
+```bash
+$ yarn start
+```
