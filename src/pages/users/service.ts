@@ -66,3 +66,16 @@ export const delItem = async (id: number) => {
       return false;
     });
 };
+
+export const addItem = async ({ values }: { values: FormValues }) => {
+  return extendRequest('api/users', {
+    method: 'post',
+    data: values,
+  })
+    .then(function(response) {
+      return true;
+    })
+    .catch(function(error) {
+      return false;
+    });
+};

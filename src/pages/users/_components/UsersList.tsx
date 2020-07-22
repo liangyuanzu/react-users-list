@@ -1,12 +1,12 @@
 import React, { useState, FC } from 'react';
 
 import { connect, Dispatch, Loading, UserState } from 'umi';
-import { Popconfirm, message } from 'antd';
+import { Popconfirm, message, Button } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 
 import UserPagination from './UserPagination';
 import UsersModal from './UsersModal';
-import { editRecord } from '../service';
+import { editRecord, addItem } from '../service';
 import { SingleUserType, FormValues } from '../data';
 import styles from '../index.less';
 
@@ -21,6 +21,7 @@ interface UserTableProps {
   userListLoading: boolean;
   handleEdit: (values: any) => void;
   handleDelete: (values: any) => void;
+  handleAdd: (values: any) => void;
 }
 
 const UserTable: FC<UserTableProps> = ({
@@ -28,6 +29,7 @@ const UserTable: FC<UserTableProps> = ({
   userListLoading,
   handleEdit,
   handleDelete,
+  handleAdd,
 }) => {
   const columns: ProColumns<SingleUserType>[] = [
     {
@@ -85,6 +87,11 @@ const UserTable: FC<UserTableProps> = ({
         setting: true,
       }}
       headerTitle="用户列表"
+      toolBarRender={() => [
+        <Button type="primary" style={{ marginBottom: 10 }} onClick={handleAdd}>
+          添加
+        </Button>,
+      ]}
     />
   );
 };
@@ -120,13 +127,22 @@ const UserListPage: FC<UserPageProps> = ({
     });
   };
 
+  const handleAdd = () => {
+    setModalVisible(true);
+    setRecord(undefined);
+  };
+
   const onFinish = async (values: FormValues) => {
     setConfirmLoading(true);
 
     let serviceFun;
     let id = 0;
-    id = record.id;
-    serviceFun = editRecord;
+    if (record) {
+      id = record.id;
+      serviceFun = editRecord;
+    } else {
+      serviceFun = addItem;
+    }
 
     const result = await serviceFun({ id, values });
     if (result) {
@@ -147,6 +163,7 @@ const UserListPage: FC<UserPageProps> = ({
         userListLoading={userListLoading}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        handleAdd={handleAdd}
       />
       <UserPagination users={users} dispatch={dispatch} />
       <UsersModal
