@@ -1,6 +1,7 @@
 import { Effect, Reducer, Subscription } from 'umi';
-import { getRemoteList } from '../service';
-import { SingleUserType } from '../data';
+import { getRemoteList, delItem } from '../service';
+import { message } from 'antd';
+import { SingleUserType } from '../data.d';
 
 export interface UserState {
   data: SingleUserType[];
@@ -19,6 +20,7 @@ interface UserModelType {
   };
   effects: {
     getRemote: Effect;
+    delete: Effect;
   };
   subscriptions: {
     setup: Subscription;
@@ -48,6 +50,22 @@ const UserModel: UserModelType = {
           type: 'getList',
           payload: data,
         });
+      }
+    },
+    *delete({ payload: { id } }, { put, call, select }) {
+      const data = yield call(delItem, id);
+      const { page, per_page } = yield select((state: any) => state.users.meta);
+      if (data) {
+        yield put({
+          type: 'getRemote',
+          payload: {
+            page,
+            per_page,
+          },
+        });
+        message.success('删除成功');
+      } else {
+        message.error('删除失败');
       }
     },
   },

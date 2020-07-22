@@ -20,12 +20,14 @@ interface UserTableProps {
   users: UserState;
   userListLoading: boolean;
   handleEdit: (values: any) => void;
+  handleDelete: (values: any) => void;
 }
 
 const UserTable: FC<UserTableProps> = ({
   users,
   userListLoading,
   handleEdit,
+  handleDelete,
 }) => {
   const columns: ProColumns<SingleUserType>[] = [
     {
@@ -55,7 +57,13 @@ const UserTable: FC<UserTableProps> = ({
         <a key={text} onClick={() => handleEdit(record)}>
           编辑
         </a>,
-        <Popconfirm title="确定删除吗?" okText="Yes" cancelText="No" key={text}>
+        <Popconfirm
+          title="确定删除吗?"
+          okText="Yes"
+          cancelText="No"
+          key={text}
+          onConfirm={() => handleDelete(record.id)}
+        >
           <a>删除</a>
         </Popconfirm>,
       ],
@@ -105,6 +113,13 @@ const UserListPage: FC<UserPageProps> = ({
     setRecord(record);
   };
 
+  const handleDelete = (id: number) => {
+    dispatch({
+      type: 'users/delete',
+      payload: { id },
+    });
+  };
+
   const onFinish = async (values: FormValues) => {
     setConfirmLoading(true);
 
@@ -131,6 +146,7 @@ const UserListPage: FC<UserPageProps> = ({
         users={users}
         userListLoading={userListLoading}
         handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
       <UserPagination users={users} dispatch={dispatch} />
       <UsersModal

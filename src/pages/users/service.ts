@@ -54,3 +54,15 @@ export const editRecord = async ({
       return false;
     });
 };
+
+export const delItem = async (id: number) => {
+  return extendRequest(`api/users/${id}`, {
+    method: 'delete',
+  })
+    .then(function(response) {
+      return true;
+    })
+    .catch(function(error) {
+      return false;
+    });
+};
