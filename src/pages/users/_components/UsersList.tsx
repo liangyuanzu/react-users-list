@@ -22,6 +22,7 @@ interface UserTableProps {
   handleEdit: (values: any) => void;
   handleDelete: (values: any) => void;
   handleAdd: (values: any) => void;
+  handleReload: () => void;
 }
 
 const UserTable: FC<UserTableProps> = ({
@@ -30,6 +31,7 @@ const UserTable: FC<UserTableProps> = ({
   handleEdit,
   handleDelete,
   handleAdd,
+  handleReload,
 }) => {
   const columns: ProColumns<SingleUserType>[] = [
     {
@@ -83,13 +85,18 @@ const UserTable: FC<UserTableProps> = ({
       options={{
         density: true,
         fullScreen: true,
-        reload: () => {},
+        reload: () => {
+          handleReload();
+        },
         setting: true,
       }}
       headerTitle="用户列表"
       toolBarRender={() => [
         <Button type="primary" style={{ marginBottom: 10 }} onClick={handleAdd}>
           添加
+        </Button>,
+        <Button style={{ marginBottom: 10 }} onClick={handleReload}>
+          刷新
         </Button>,
       ]}
     />
@@ -164,6 +171,7 @@ const UserListPage: FC<UserPageProps> = ({
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         handleAdd={handleAdd}
+        handleReload={handleReload}
       />
       <UserPagination users={users} dispatch={dispatch} />
       <UsersModal
