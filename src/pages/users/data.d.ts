@@ -4,6 +4,7 @@ export interface SingleUserType {
   email: string;
   create: string;
   update_time: string;
+  create_time: string;
   status: number;
 }
 

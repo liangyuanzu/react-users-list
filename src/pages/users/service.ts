@@ -1,5 +1,6 @@
 import { extend } from 'umi-request';
 import { message } from 'antd';
+import { FormValues } from './data.d';
 
 const errorHandler = function(error: any) {
   if (error.response) {
@@ -29,6 +30,25 @@ export const getRemoteList = async ({
   })
     .then(function(response) {
       return response;
+    })
+    .catch(function(error) {
+      return false;
+    });
+};
+
+export const editRecord = async ({
+  id,
+  values,
+}: {
+  id: number;
+  values: FormValues;
+}) => {
+  return extendRequest(`api/users/${id}`, {
+    method: 'put',
+    data: values,
+  })
+    .then(function(response) {
+      return true;
     })
     .catch(function(error) {
       return false;

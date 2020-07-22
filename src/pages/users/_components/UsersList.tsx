@@ -1,11 +1,13 @@
-import React, { FC } from 'react';
+import React, { useState, FC } from 'react';
 
 import { connect, Dispatch, Loading, UserState } from 'umi';
-import { Popconfirm } from 'antd';
+import { Popconfirm, message } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 
 import UserPagination from './UserPagination';
-import { SingleUserType } from '../data';
+import UsersModal from './UsersModal';
+import { editRecord } from '../service';
+import { SingleUserType, FormValues } from '../data';
 import styles from '../index.less';
 
 interface UserPageProps {
@@ -17,9 +19,14 @@ interface UserPageProps {
 interface UserTableProps {
   users: UserState;
   userListLoading: boolean;
+  handleEdit: (values: any) => void;
 }
 
-const UserTable: FC<UserTableProps> = ({ users, userListLoading }) => {
+const UserTable: FC<UserTableProps> = ({
+  users,
+  userListLoading,
+  handleEdit,
+}) => {
   const columns: ProColumns<SingleUserType>[] = [
     {
       title: 'ID',
@@ -45,7 +52,9 @@ const UserTable: FC<UserTableProps> = ({ users, userListLoading }) => {
       valueType: 'option',
       key: 'action',
       render: (text: any, record: SingleUserType) => [
-        <a key={text}>编辑</a>,
+        <a key={text} onClick={() => handleEdit(record)}>
+          编辑
+        </a>,
         <Popconfirm title="确定删除吗?" okText="Yes" cancelText="No" key={text}>
           <a>删除</a>
         </Popconfirm>,
@@ -77,10 +86,60 @@ const UserListPage: FC<UserPageProps> = ({
   dispatch,
   userListLoading,
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [record, setRecord] = useState<SingleUserType | undefined>(undefined);
+
+  const handleReload = () => {
+    dispatch({
+      type: 'users/getRemote',
+      payload: {
+        page: users.meta.page,
+        per_page: users.meta.per_page,
+      },
+    });
+  };
+
+  const handleEdit = (record: SingleUserType) => {
+    setModalVisible(true);
+    setRecord(record);
+  };
+
+  const onFinish = async (values: FormValues) => {
+    setConfirmLoading(true);
+
+    let serviceFun;
+    let id = 0;
+    id = record.id;
+    serviceFun = editRecord;
+
+    const result = await serviceFun({ id, values });
+    if (result) {
+      setModalVisible(false);
+      setConfirmLoading(false);
+      message.success(`${id === 0 ? '添加' : '编辑'}  成功  `);
+      handleReload();
+    } else {
+      setConfirmLoading(false);
+      message.error(`${id === 0 ? '添加' : '编辑'}  失败`);
+    }
+  };
+
   return (
     <div className={styles.listTable}>
-      <UserTable users={users} userListLoading={userListLoading} />
+      <UserTable
+        users={users}
+        userListLoading={userListLoading}
+        handleEdit={handleEdit}
+      />
       <UserPagination users={users} dispatch={dispatch} />
+      <UsersModal
+        visible={modalVisible}
+        handleCancel={() => setModalVisible(false)}
+        record={record}
+        onFinish={onFinish}
+        confirmLoading={confirmLoading}
+      />
     </div>
   );
 };
