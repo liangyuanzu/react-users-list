@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 
 import { connect, Dispatch, Loading, UserState } from 'umi';
-import { Popconfirm } from 'antd';
+import { Popconfirm, Pagination } from 'antd';
 import ProTable, { ProColumns } from '@ant-design/pro-table';
 
 import { SingleUserType } from '../data';
@@ -13,7 +13,11 @@ interface UserPageProps {
   userListLoading: boolean;
 }
 
-const UserListPage: FC<UserPageProps> = ({ users, userListLoading }) => {
+const UserListPage: FC<UserPageProps> = ({
+  users,
+  dispatch,
+  userListLoading,
+}) => {
   const columns: ProColumns<SingleUserType>[] = [
     {
       title: 'ID',
@@ -47,6 +51,26 @@ const UserListPage: FC<UserPageProps> = ({ users, userListLoading }) => {
     },
   ];
 
+  const handlePagination = (page: number, pageSize?: number) => {
+    dispatch({
+      type: 'users/getRemote',
+      payload: {
+        page,
+        per_page: pageSize ? pageSize : users.meta.per_page,
+      },
+    });
+  };
+
+  const handlePageSize = (current: number, size: number) => {
+    dispatch({
+      type: 'users/getRemote',
+      payload: {
+        page: current,
+        per_page: size,
+      },
+    });
+  };
+
   return (
     <div className={styles.listTable}>
       <ProTable
@@ -63,6 +87,18 @@ const UserListPage: FC<UserPageProps> = ({ users, userListLoading }) => {
           setting: true,
         }}
         headerTitle="用户列表"
+      />
+      <Pagination
+        className={styles.listPage}
+        total={users.meta.total}
+        onChange={handlePagination}
+        onShowSizeChange={handlePageSize}
+        pageSizeOptions={['5', '10', '15', '20']}
+        current={users.meta.page}
+        pageSize={users.meta.per_page}
+        showSizeChanger
+        showQuickJumper
+        showTotal={total => `Total ${total} items`}
       />
     </div>
   );
